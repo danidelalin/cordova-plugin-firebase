@@ -47,32 +47,9 @@ var PLATFORM = {
             'google-services.json',
             ANDROID_DIR + '/assets/www/google-services.json',
             'www/google-services.json'
-        ],
-        stringsXml: ANDROID_DIR + '/res/values/strings.xml'
+        ]
     }
 };
-
-function updateStringsXml(contents) {
-    var json = JSON.parse(contents);
-    var strings = fs.readFileSync(PLATFORM.ANDROID.stringsXml).toString();
-
-    // strip non-default value
-    strings = strings.replace(new RegExp('<string name="google_app_id">([^\@<]+?)</string>', 'i'), '');
-
-    // strip non-default value
-    strings = strings.replace(new RegExp('<string name="google_api_key">([^\@<]+?)</string>', 'i'), '');
-
-    // strip empty lines
-    strings = strings.replace(new RegExp('(\r\n|\n|\r)[ \t]*(\r\n|\n|\r)', 'gm'), '$1');
-
-    // replace the default value
-    strings = strings.replace(new RegExp('<string name="google_app_id">([^<]+?)</string>', 'i'), '<string name="google_app_id">' + json.client[0].client_info.mobilesdk_app_id + '</string>');
-
-    // replace the default value
-    strings = strings.replace(new RegExp('<string name="google_api_key">([^<]+?)</string>', 'i'), '<string name="google_api_key">' + json.client[0].api_key[0].current_key + '</string>');
-
-    fs.writeFileSync(PLATFORM.ANDROID.stringsXml, strings);
-}
 
 function copyKey(platform, callback) {
     for (var i = 0; i < platform.src.length; i++) {
@@ -133,9 +110,5 @@ module.exports = function(context) {
   if (platforms.indexOf('ios') !== -1 && directoryExists(IOS_DIR)) {
     console.log('Preparing Firebase on iOS');
     copyKey(PLATFORM.IOS);
-  }
-  if (platforms.indexOf('android') !== -1 && directoryExists(ANDROID_DIR)) {
-    console.log('Preparing Firebase on Android');
-    copyKey(PLATFORM.ANDROID, updateStringsXml)
   }
 };
